@@ -1,5 +1,6 @@
 class FictionsController < ApplicationController
-	skip_before_action :verify_authenticity_token, only: [:create]
+	skip_before_action :verify_authenticity_token
+	
 	def fetch_fiction_name
 		@fiction=Fiction.find(params[:id])
 		@name=@fiction.name 
@@ -7,16 +8,13 @@ class FictionsController < ApplicationController
 	end
 
 	
-
-	def new
-		@fiction=Fiction.new
-	end
-	def create
+	def fiction_create
 		@fiction=Fiction.new(fiction_params)
-		if @fiction.save
-			render json: { message: "fiction created successfully", fiction: @fiction}
+		if @fiction 
+			@fiction.save
+			render json: { message: "fiction created successfully", new_fiction: @fiction}
 		else
-			render :new
+			render json: {new: @fiction}
 		end
 	end
 	def fav_fiction
@@ -25,11 +23,11 @@ class FictionsController < ApplicationController
 		render json: {message: "fav fiction",fav_fictions: @fav }
 	end
 	
-    
+	private
 	def fiction_params
-		params.permit(:name)
+		params.require(:fiction).permit( :name)
 	end
-
-
 end
+
+
 

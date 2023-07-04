@@ -1,5 +1,5 @@
 class LikesController < ApplicationController
-	skip_before_action :verify_authenticity_token, only: [:create]
+	skip_before_action :verify_authenticity_token
 
 	def liked_fictions
 		@user=User.find(params[:id])
@@ -10,20 +10,19 @@ class LikesController < ApplicationController
 		@likes=Like.all()
 		render json: {message: "all_likes", likes: @likes}
 	end
-	def new 
-		@like=Like.new
-	end
-	def create
-		@like=Like.new(set_params)
-		if @like.save
-			render json: {message: "like created successfully", like: @like}
+
+	def likes_create
+		@like=Like.new(like_params)
+		if @like
+			@like.save
+			render json: {message: "like created successfully", new_like: @like}
 		else
-			render :new
+			render json: {new: @like}
 		end
 	end
-	
-	def set_params
-		params.permit(:user_id, :book_id)
+	private
+	def like_params
+		params.require(:like).permit(:user_id, :fiction_id)
 	end
 
 end
